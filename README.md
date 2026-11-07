@@ -4,18 +4,18 @@
 
 ## Overview
 
-A short Python script that sends the same prompt to two local large language
-models via [Ollama](https://ollama.com) and saves the outputs to a CSV file.
-No API keys or cloud services are used — everything runs locally.
+This project uses a short Python script to send the same prompt to two local large language models through [Ollama](https://ollama.com). It measures their response times and saves their outputs to a CSV file.
+
+No API keys or cloud services are required. The models run locally on the computer.
 
 ## Models used
 
-| Model | Size | Notes |
-|---|---|---|
-| `gemma4:e2b` | 4.6 GB | Larger model; slower but more detailed |
-| `llama3.2:1b` | 1.3 GB | Small model; much faster, less polished |
+| Model | Size | Description |
+|---|---:|---|
+| `gemma4:e2b` | 4.6 GB | Larger model; produced a more detailed response. |
+| `llama3.2:1b` | 1.3 GB | Smaller model; generated a response faster. |
 
-Both were pulled with:
+Both models were downloaded using:
 
 ```bash
 ollama pull gemma4:e2b
@@ -25,58 +25,71 @@ ollama pull llama3.2:1b
 ## How to run
 
 ### Prerequisites
-1. Install [Ollama](https://ollama.com/download) and make sure it is running.
-2. Pull both models (see commands above).
-3. Python 3.10+ installed.
+
+1. Install [Ollama](https://ollama.com/download).
+2. Make sure Ollama is running.
+3. Download both models using the commands above.
+4. Install Python 3.10 or later.
 
 ### Setup (Windows PowerShell)
+
+Create and activate a virtual environment:
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
+```
+
+Install the Ollama Python library:
+
+```powershell
 python -m pip install ollama
 ```
 
-*Note: inside a virtual environment, always use `python -m pip` so packages install into the venv.*
+### Run the program
 
-### Run
+Run:
 
 ```powershell
 python compare_models.py
 ```
 
-The script writes `outputs.csv` with one row per model.
+The script sends the same prompt to both models, measures their response times and saves the results in `outputs.csv`.
 
-## What the script does
+## Observations
 
-For each model, it sends the prompt via `ollama.chat(...)`, measures response time, and writes the result to `outputs.csv`.
+**Prompt used:**
 
-## Observations (using course terminology)
+"Explain in 3 sentences what a large language model is."
 
-Prompt used: *"Explain in 3 sentences what a large language model is."*
+### Response time
 
-| Model | Time | Quality & Terminology |
-|---|---|---|
-| `gemma4:e2b` | **27.78 s** | Accurate, well-structured, exactly 3 sentences. |
-| `llama3.2:1b` | **8.15 s** | About 3.4× faster, but produced **4 sentences** instead of 3. |
+| Model | Response time |
+|---|---:|
+| `gemma4:e2b` | 27.78 seconds |
+| `llama3.2:1b` | 8.15 seconds |
+
+In this experiment, Llama 3.2 (1B) was approximately 3.4 times faster than Gemma 4 (E2B). These measurements apply to the computer used for this experiment and may differ on other hardware.
+
+### Was it correct?
+
+Both models produced relevant explanations of large language models. However, the responses differed in detail and presentation. The smaller model was faster, while the larger model provided a more detailed response.
 
 ### Was it slow?
-- Yes, relative to commercial cloud models. `gemma4:e2b` took ~28 s; `llama3.2:1b` took ~8 s on this machine.
-- Running on a machine with more VRAM (or a dedicated GPU) would make `gemma4:e2b` significantly faster.
 
-### Was it correct? (Non-determinism and Hallucinations)
-- Both models gave factually accurate definitions. Neither exhibited **hallucinations** (fabricating facts).
-- However, **non-determinism** was observed: the outputs are not strictly fixed. The smaller `llama3.2:1b` model drifted from the instruction (producing 4 sentences instead of 3), showing that smaller models may struggle with precise instruction-following.
+The response times were relatively long compared with some commercial cloud-based AI services. However, both models ran locally without requiring an external AI service.
 
 ### Is it worse than commercial models?
-- Yes, in instruction-following and polish. Commercial models (e.g., GPT-4, Claude) reliably obey "exactly 3 sentences" and produce tighter prose.
-- However, for a 1.3 GB model running locally on a laptop, the output is remarkably good. The trade-off is: commercial models are smarter, but local models guarantee **privacy** (no data sent to the cloud) and **zero cost**.
+
+This experiment did not directly compare the local models with commercial models, so we cannot draw a definite conclusion. Commercial models may offer stronger performance in some tasks, but local models have advantages such as greater control over data and no per-request cloud API fees.
+
+Local execution can improve privacy because prompts do not need to be sent to an external AI service. However, privacy also depends on how the application and its logs handle data.
 
 ## Files
 
 | File | Purpose |
 |---|---|
-| `compare_models.py` | Main script |
-| `outputs.csv` | Generated results |
-| `README.md` | This file |
-| `.gitignore` | Excludes `.venv/` and Python cache |
+| `compare_models.py` | Python script that runs both models. |
+| `outputs.csv` | Contains the prompt, model responses and response times. |
+| `README.md` | Project description and instructions. |
+| `.gitignore` | Excludes virtual environments and Python cache files. |
